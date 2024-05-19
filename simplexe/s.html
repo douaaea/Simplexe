@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simplex Algorithm Solver</title>
+    <style>
+        .constraint-group {
+            margin-bottom: 10px;
+        }
+        .constraint-group label {
+            display: inline-block;
+            margin-right: 5px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        caption {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Simplex Algorithm Solver</h2>
+    <div id="input_variables">
+        <label for="num_variables">Number of variables:</label>
+        <input type="number" id="num_variables" required>
+        <button onclick="createConstraintInputs()">Submit</button>
+    </div>
+
+    <div id="constraint_inputs"></div>
+
+    <button onclick="optimize()">Optimize</button>
+
+    <div id="iteration_tables"></div>
+
+    <script>
+        function createConstraintInputs() {
+            const numVariables = parseInt(document.getElementById("num_variables").value);
+            const constraintInputsDiv = document.getElementById("constraint_inputs");
+            constraintInputsDiv.innerHTML = "";
+
+            // Generate objective function input
+            const objectiveFunctionInput = document.createElement("div");
+            objectiveFunctionInput.innerHTML = "<label for='objective_function_input'>Objective function (Z):</label>";
+            let objectiveFunction = "Z = ";
+            for (let i = 0; i < numVariables; i++) {
+                const variableId = `x${i + 1}`;
+                objectiveFunction += `<input type='number' id='${variableId}' name='${variableId}' step='any' required>`;
+                objectiveFunction += `${variableId}`;
+                objectiveFunction += (i < numVariables - 1) ? " + " : "";
+            }
+            objectiveFunctionInput.innerHTML += objectiveFunction;
+            constraintInputsDiv.appendChild(objectiveFunctionInput);
+
+            // Generate constraint inputs
+            const constraintGroup = document.createElement("div");
+            constraintGroup.classList.add("constraint-group");
+
+            const constraintLabel = document.createElement("label");
+            constraintLabel.textContent = "Constraint 1: ";
+            constraintGroup.appendChild(constraintLabel);
+
+            for (let i = 0; i < numVariables; i++) {
+                const variableId = `x${i + 1}`;
+                constraintGroup.innerHTML +=
+                    `<input type="number" id="constraint_1_${variableId}" name="constraint_1_${variableId}" step="any" required>
+                    <label for="constraint_1_${variableId}">${variableId} +</label>`;
+            }
+
+            constraintGroup.innerHTML +=
+                `<label for="constraint_1_constant"><= </label>
+                <input type="number" id="constraint_1_constant" name="constraint_1_constant" step="any" required>`;
+
+            // Add "Add Constraint" button to the constraint group
+            const addConstraintButton = createAddConstraintButton();
+            constraintGroup.appendChild(addConstraintButton);
+
+            constraintInputsDiv.appendChild(constraintGroup);
+        }
+
+        function addConstraint() {
+            const numVariables = parseInt(document.getElementById("num_variables").value);
+            const constraintInputsDiv = document.getElementById("constraint_inputs");
+            const numInputs = document.querySelectorAll("#constraint_inputs .constraint-group").length;
+
+            let constraintIndex = numInputs + 1;
+            const inputId = `constraint_${constraintIndex}`;
+
+            const constraintGroup = document.createElement("div");
+            constraintGroup.classList.add("constraint-group");
+
+            const constraintLabel = document.createElement("label");
+            constraintLabel.textContent = `Constraint ${constraintIndex}: `;
+            constraintGroup.appendChild(constraintLabel);
+
+            for (let i = 0; i < numVariables; i++) {
+                const variableId = `x${i + 1}`;
+                constraintGroup.innerHTML +=
+                    `<input type="number" id="${inputId}_${variableId}" name="${inputId}_${variableId}" step="any" required>
+                    <label for="${inputId}_${variableId}">${variableId} +</label>`;
+            }
+
+            constraintGroup.innerHTML +=
+                `<label for="${inputId}_constant"><= </label>
+                <input type="number" id="${inputId}_constant" name="${inputId}_constant" step="any" required>`;
+
+            // Add "Add Constraint" button to the constraint group
+            const addConstraintButton = createAddConstraintButton();
+            constraintGroup.appendChild(addConstraintButton);
+
+            constraintInputsDiv.appendChild(constraintGroup);
+        }
+
+        function createAddConstraintButton() {
+            const addConstraintButton = document.createElement("button");
+            addConstraintButton.textContent = "Add Constraint";
+            addConstraintButton.onclick = addConstraint;
+            return addConstraintButton;
+        }
+    </script>
+    <script src="simplexe.js"></script>
+</body>
+</html>
